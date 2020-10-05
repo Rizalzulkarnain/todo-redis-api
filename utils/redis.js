@@ -3,6 +3,15 @@ const redis = require('redis');
 const util = require('util');
 
 const client = redis.createClient(process.env.REDIS_URI);
+
+client.on('connect', function () {
+  console.log('Redis client connected....');
+});
+
+client.on('error', function (err) {
+  console.log('Error ' + err);
+});
+
 client.hget = util.promisify(client.hget);
 
 // create reference for .exec
@@ -43,7 +52,7 @@ mongoose.Query.prototype.exec = async function () {
 
   // return found cachedValue
   const doc = JSON.parse(cacheValue);
-  console.log('Return data from Redis');
+  console.log('Retrieve data from Redis');
   return Array.isArray(doc)
     ? doc.map((d) => new this.model(d))
     : new this.model(doc);
